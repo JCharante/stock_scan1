@@ -1,281 +1,281 @@
 <template>
   <div>
-     <div slot="header" class="toolbar">
-        <q-toolbar-title :padding="1">
-          Scan Stock (beta)
-        </q-toolbar-title>
-      </div>
-      <!-- Navigation Tabs -->
-      <q-tabs slot="navigation">
-        <q-tab icon="alarm" route="/stockin" exact replace>In</q-tab>
-        <q-tab icon="alarm" route="/stockout" exact replace>Out</q-tab>
-        <q-tab icon="help" route="/help" exact replace>help</q-tab>
-        <q-tab icon="help" route="/sync" exact replace>sync</q-tab>
-      </q-tabs>
+    <div slot="header" class="toolbar">
+      <q-toolbar-title :padding="1">
+        Scan Stock (beta)
+      </q-toolbar-title>
+    </div>
+    <!-- Navigation Tabs -->
+    <q-tabs slot="navigation">
+      <q-tab icon="alarm" route="/stockin" exact replace>In</q-tab>
+      <q-tab icon="alarm" route="/stockout" exact replace>Out</q-tab>
+      <q-tab icon="help" route="/help" exact replace>help</q-tab>
+      <q-tab icon="help" route="/sync" exact replace>sync</q-tab>
+    </q-tabs>
 
     <div class="layout-padding">
-       <p class="caption">SKU</p>
+      <p class="caption">SKU</p>
 
       <blockquote v-if="!hasITEMS">
-          <small>
-            Please Click on the (+) button to scan the item.
-          </small>
+        <small>
+          Please Click on the (+) button to scan the item.
+        </small>
       </blockquote>
       <div v-else class="list striped" >
         <div class="item three-lines" v-if="item.direction == 'In' " v-for="(item, id) in itemsInStock">
-            
-            <div class="item-primary bg-primary text-white"><i>assignment</i></div>
-            <div class="item-content has-secondary">
-              <div>{{item.code}}</div>
-              <div>{{item.timeStamp}}</div>
-            </div>
-            <div class="item-secondary stamp" style="color:green;font-weight:bold ">
-              {{item.direction}}
-            </div>
 
-              <div class="item-secondary">
-                <i :ref="'target' + id">
-                  more_horiz
-                
+          <div class="item-primary bg-primary text-white"><i>assignment</i></div>
+          <div class="item-content has-secondary">
+            <div>{{item.code}}</div>
+            <div>{{item.timeStamp}}</div>
+          </div>
+          <div class="item-secondary stamp" style="color:green;font-weight:bold ">
+            {{item.direction}}
+          </div>
 
-                <q-popover :ref="'popover' + id">
-                  <div class="list">
-                    <div class="item item-link" @click="$refs['popover' + id][0].close(), editProduct(id)">
-                      <i class="item-primary">edit</i>
-                      <div class="item-content">Edit</div>
-                    </div>
-                    <div class="item item-link" @click="$refs['popover' + id][0].close(), deleteProduct(id)">
-                      <i class="item-primary">delete</i>
-                      <div class="item-content">Delete</div>
-                    </div>
+          <div class="item-secondary">
+            <i :ref="'target' + id">
+              more_horiz
+
+
+              <q-popover :ref="'popover' + id">
+                <div class="list">
+                  <div class="item item-link" @click="$refs['popover' + id][0].close(), editProduct(id)">
+                    <i class="item-primary">edit</i>
+                    <div class="item-content">Edit</div>
                   </div>
-                </q-popover>
-                </i>
-              </div>
+                  <div class="item item-link" @click="$refs['popover' + id][0].close(), deleteProduct(id)">
+                    <i class="item-primary">delete</i>
+                    <div class="item-content">Delete</div>
+                  </div>
+                </div>
+              </q-popover>
+            </i>
           </div>
         </div>
       </div>
-        <q-fab class=" absolute-bottom-right" classNames="primary" direction="up">
-         <q-small-fab class="absolute-bottom-right" @click.native="scanQR()" icon="phonelink_ring"></q-small-fab>
-        </q-fab>
     </div>
+    <q-fab class=" absolute-bottom-right" classNames="primary" direction="up">
+      <q-small-fab class="absolute-bottom-right" @click.native="scanQR()" icon="phonelink_ring"></q-small-fab>
+    </q-fab>
 
     <!-- Footer -->
     <div slot="footer" class="toolbar">
-    All right reserved Nano Corporation .
+      All right reserved Nano Corporation .
     </div>
+
   </div>
 </template>
 
 <script>
-import { Dialog, Toast } from 'quasar'
-import store from './product-store'
+  import { Dialog, Toast } from 'quasar'
+  import store from './product-store'
 
-function addProduct (name,code,direction='in',timeStamp) {
-  let id = Math.random().toString(36).substr(2, 9)
+  function addProduct (name,code,direction='in',timeStamp) {
+    let id = Math.random().toString(36).substr(2, 9)
 
-  store.set(id, {name,code,direction,timeStamp})
-  Toast.create.positive('Product added')
-}
-  
-function onGetDirectoryFail()
-{
-  alert('Folder batch Doesnot Exist');
-}
+    store.set(id, {name,code,direction,timeStamp})
+    Toast.create.positive('Product added')
+  }
 
-function gotNoFileEntry()
-{
-  alert('Product.json Does not exist');
-}
+  function onGetDirectoryFail()
+  {
+    alert('Folder batch Doesnot Exist');
+  }
 
-function writeFile(fileEntry,dataObj) {
+  function gotNoFileEntry()
+  {
+    alert('Product.json Does not exist');
+  }
+
+  function writeFile(fileEntry,dataObj) {
     // Create a FileWriter object for our FileEntry (log.txt).
     fileEntry.createWriter(function (fileWriter) {
 
-        fileWriter.onwriteend = function() {
-            console.log("Successful file write...");
-            // readFile(fileEntry);
-        };
+      fileWriter.onwriteend = function() {
+        console.log("Successful file write...");
+        // readFile(fileEntry);
+      };
 
-        fileWriter.onerror = function (e) {
-            console.log("Failed file write: " + e.toString());
-        };
+      fileWriter.onerror = function (e) {
+        console.log("Failed file write: " + e.toString());
+      };
 
-        // If data object is not passed in,
-        // create a new Blob instead.
-        if (!dataObj) {
-            dataObj = new Blob(['some file data'], { type: 'text/plain' });
-        }
+      // If data object is not passed in,
+      // create a new Blob instead.
+      if (!dataObj) {
+        dataObj = new Blob(['some file data'], { type: 'text/plain' });
+      }
 
-        fileWriter.write(JSON.stringify(dataObj));
+      fileWriter.write(JSON.stringify(dataObj));
 
     });
-}
+  }
 
-export default {
-  mounted(){
-    // console.log(appconfig);
-  },
-  data(){
+  export default {
+    mounted(){
+      // console.log(appconfig);
+    },
+    data(){
 
-    return {
-      urls:false,
-      itemsInStock:store.state,
-      product:{
-        name:'',
-        id:''
-      },
-    }
+      return {
+        urls:false,
+        itemsInStock:store.state,
+        product:{
+          name:'',
+          id:''
+        },
+      }
 
-  },
-  methods:{
-    scanQR () {
-      let  that = this;
-      cordova.plugins.barcodeScanner.scan( 
-        function (result) {
+    },
+    methods:{
+      scanQR () {
+        let  that = this;
+        cordova.plugins.barcodeScanner.scan(
+          function (result) {
             // console.log('inside result')
             if(result.text !='')
             {
-                // console.log('inside result chein')
-                var d = new Date();
-                var e = formatDate(d);
+              // console.log('inside result chein')
+              var d = new Date();
+              var e = formatDate(d);
 
-                addProduct("randomName",result.text,'In',e);
-                that.checkFile();
+              addProduct("randomName",result.text,'In',e);
+              that.checkFile();
             }
-            
-        },
-        function (error) {
+
+          },
+          function (error) {
             alert("Scanning failed: " + error);
-        },
-        {
+          },
+          {
             preferFrontCamera : false, // iOS and Android
             showFlipCameraButton : true, // iOS and Android
             showTorchButton : true, // iOS and Android
-            torchOn: false, 
+            torchOn: false,
             prompt : "Place a barcode inside the scan area", // Android
             resultDisplayDuration: 500
-        }
-     );
-    },
-    checkFile(){
-      let scope = this;
-       window.resolveLocalFileSystemURL(cordova.file.dataDirectory, function(dir) {
+          }
+        );
+      },
+      checkFile(){
+        let scope = this;
+        window.resolveLocalFileSystemURL(cordova.file.dataDirectory, function(dir) {
 
-            // console.log('got main dir',dir);
+          // console.log('got main dir',dir);
 
-            try{
-                dir.getDirectory('batch', {
-                      create: false,
-                      exclusive: false
-                  }, function(dir){
-                    dir.getFile('product.json', {
-                        create: true,
-                        exclusive: false
-                    }, function(dir){
-                        // console.log(scope.itemsInStock);
-                        writeFile(dir,scope.itemsInStock);
+          try{
+            dir.getDirectory('batch', {
+              create: false,
+              exclusive: false
+            }, function(dir){
+              dir.getFile('product.json', {
+                create: true,
+                exclusive: false
+              }, function(dir){
+                // console.log(scope.itemsInStock);
+                writeFile(dir,scope.itemsInStock);
 
-                    }, gotNoFileEntry);
+              }, gotNoFileEntry);
 
-                  }, onGetDirectoryFail);
+            }, onGetDirectoryFail);
 
-            }
-            catch(err){
-              console.log(err);
-            }
-            
+          }
+          catch(err){
+            console.log(err);
+          }
+
         });
-    },
-    testMethod () {
+      },
+      testMethod () {
         console.log(this.itemsInStock);
-    },
-    editProduct (id) {
-      var item = store.state[id]
-      var that = this;
-      Dialog.create({
-        title: 'Edit Product',
-        message: '',
-        form: {
-          name: {
-            type: 'textbox',
-            label: 'Name',
-            model: item.name
-          },
-          id: {
-            type: 'textbox',
-            label: 'id',
-            model: item.code
-          }
-        },
-        buttons: [
-          'Cancel',
-          {
-            label: 'Save',
-            preventClose: true,
-            handler (data, close) {
-              // console.log(data);
-              if (!data.name.length) {
-                Toast.create.warning('Please fill in a name')
-                return
-              }
-              if (!data.id.length) {
-                Toast.create.warning('Please fill in a id')
-                return
-              }
-
-              close()
-              store.set(id, {
-                SKU: data.name,
-                barcode: data.id,
-                movement
-              })
+      },
+      editProduct (id) {
+        var item = store.state[id]
+        var that = this;
+        Dialog.create({
+          title: 'Edit Product',
+          message: '',
+          form: {
+            name: {
+              type: 'textbox',
+              label: 'Name',
+              model: item.name
+            },
+            id: {
+              type: 'textbox',
+              label: 'id',
+              model: item.code
             }
-          }
-        ]
-      })
-    },
-    deleteProduct (id) {
-      var that = this;
-      Dialog.create({
-        title: 'Confirm',
-        message: `
+          },
+          buttons: [
+            'Cancel',
+            {
+              label: 'Save',
+              preventClose: true,
+              handler (data, close) {
+                // console.log(data);
+                if (!data.name.length) {
+                  Toast.create.warning('Please fill in a name')
+                  return
+                }
+                if (!data.id.length) {
+                  Toast.create.warning('Please fill in a id')
+                  return
+                }
+
+                close()
+                store.set(id, {
+                  SKU: data.name,
+                  barcode: data.id,
+                  movement
+                })
+              }
+            }
+          ]
+        })
+      },
+      deleteProduct (id) {
+        var that = this;
+        Dialog.create({
+          title: 'Confirm',
+          message: `
           Are you sure you want to delete the following entry?<br><br>
           <strong>${this.itemsInStock[id].name}</strong> - <em>${this.itemsInStock[id].code}</em>
         `,
-        buttons: [
-          'Cancel',
-          {
-            label: 'Delete',
-            handler () {
-              store.del(id)
-              Toast.create.positive('Product removed')
+          buttons: [
+            'Cancel',
+            {
+              label: 'Delete',
+              handler () {
+                store.del(id)
+                Toast.create.positive('Product removed')
+              }
             }
-          }
-        ]
-      })
-    }
-  },
-  computed: {
-    hasITEMS () {
-      // console.log('After setting :'+this.itemsInStock);
-      // alert(store.state);
-      return Object.keys(this.itemsInStock).length > 0
+          ]
+        })
+      }
+    },
+    computed: {
+      hasITEMS () {
+        // console.log('After setting :'+this.itemsInStock);
+        // alert(store.state);
+        return Object.keys(this.itemsInStock).length > 0
+      }
     }
   }
-}
 </script>
 
 <style lang="stylus">
-.logo-container
-  width 192px
-  height 268px
-  perspective 800px
-  position absolute
-  top 50%
-  left 50%
-  transform translateX(-50%) translateY(-50%)
-.logo
-  position absolute
-  transform-style preserve-3d
+  .logo-container
+    width 192px
+    height 268px
+    perspective 800px
+    position absolute
+    top 50%
+    left 50%
+    transform translateX(-50%) translateY(-50%)
+  .logo
+    position absolute
+    transform-style preserve-3d
 </style>
