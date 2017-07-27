@@ -28,7 +28,6 @@ export default new VueRouter({
     { path: '/stockout', component: load('stockout') }, // Default
     { path: '/help', component: load('help') },
     { path: '/sync', component: load('sync') }, // Default
-    { path: '*', component: load('Error404') } ,// Not found
+    { path: '*', component: load('Error404') }  // Not found
   ]
 })
-
