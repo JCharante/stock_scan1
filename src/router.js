@@ -22,13 +22,13 @@ export default new VueRouter({
 
   routes: [
     // { path: '/', component: load('Index') }, // Default
-    { path: '*', component: load('Error404') } ,// Not found
     { path: '/', component: load('Home') }, // Default
     { path: '/home', component: load('Index') }, // Default
     { path: '/stockin', component: load('stockin') }, // Default
     { path: '/stockout', component: load('stockout') }, // Default
     { path: '/help', component: load('help') },
     { path: '/sync', component: load('sync') }, // Default
+    { path: '*', component: load('Error404') } ,// Not found
   ]
 })
 
